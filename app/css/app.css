@@ -1,0 +1,270 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  font-family:'Times New Roman', Times, serif 
+}
+
+
+.hidden {
+  display: none;
+}
+
+.panel {
+  background-color: #fafafa;
+  border: solid 1px #ccc;
+  border-radius: 2px;
+  font-family: 'Arial', sans-serif;
+  padding: 10px;
+}
+
+.djs-label {
+  font-family: 'Arial', sans-serif;
+}
+
+.bpmn-icon-task.red {
+  color: #cc0000 !important;
+}
+
+.bpmn-icon-task.test {
+  color: #55019b !important;
+}
+
+
+.bpmn-icon-task.yellow {
+  color: #ffc800 !important;
+}
+
+.bpmn-icon-task.green {
+  color: #52B415 !important;
+}
+
+#quality-assurance {
+  color: #111;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#quality-assurance #form input {
+  border: solid 1px #ccc;
+  border-radius: 2px;
+  font-family: 'Arial', sans-serif;
+  padding: 10px;
+}
+
+#quality-assurance #form input[type=text] {
+  width: 100%;
+}
+
+#quality-assurance #form #warning {
+  background-color: rgba(255, 0, 0, 0.25);
+  border-radius: 2px;
+  padding: 10px;
+}
+
+#quality-assurance #form input[type=submit] {
+  background-color: #FAFAFA;
+  color: #111;
+}
+
+#hint {
+  bottom: 20px;
+  left: 20px;
+  position: absolute;
+}
+
+.content{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: 100vh;
+  justify-content: space-between;
+}
+#container{
+  flex: auto;
+}
+.flex_workplace{
+  max-width: 90%;
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#properties{
+  flex: initial;
+  min-width: 10%;
+  border-left: 1px solid black;
+}
+#resource-window{
+  position: absolute;
+  border: 3px solid #5c5c5c;
+  left: 15%;
+  right: 20%;
+  top: 10%;
+  bottom: 15%;
+  border-radius: 15px;
+  background-color: #fafafa;
+  overflow: auto;
+}
+
+#resource-flex{
+  display: flex;
+  border-top: 2px solid #5c5c5c;
+  flex: 1;
+}
+#resource-list{
+  min-width: 20%;
+  border-right: 2px solid #5c5c5c;
+  padding: 10px;
+  overflow: auto;
+}
+#resource-edit{
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+}
+
+header {
+  width: 100%;
+  height: 7vh;
+  padding: 0% 5% 0% 5%;
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0px 1px 2px 2px #33333344;
+  transition: all 0.3s ease;
+}
+button, .button_import, #file{
+  background-color: #fff;
+  height: 100%;
+  width: 8%;
+  color: #333;
+  border:none;
+  font-weight: 500;
+  margin: auto 1% auto 0%;
+  padding: 2px auto;
+  position: relative;
+  font-size: large;
+}
+button:hover {
+  background-color: #fff;;
+  color: #0d60ad;
+  letter-spacing: 0.3mm;
+  text-decoration: underline 2px #0d60ad;
+  transition: all 0.3s linear;
+}
+#file {
+  height: max-content;
+  width: max-content;
+  text-align: center;
+  align-items: center;
+  
+}
+.button_down {
+  font-weight: 500;
+  text-decoration: none;
+  color: #333;
+  margin-left: 3%;
+}
+
+.modal .save-content p {
+  font-weight: 700;
+}
+
+.button_down:hover {
+  text-decoration: none;
+  letter-spacing: 0.3mm;
+  color: #0d60ad;
+  text-decoration: underline 2px #0d60ad;
+  transition: all 0.3s linear;
+}
+.button_import{
+ width: 30%;
+}
+.resource-div-h1{
+  text-align: center;
+  padding: 3px;
+}
+.resource-flex-col{
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  
+}
+
+.resource{
+  border-bottom: 1px solid black;
+  margin: 5px 0px;
+  background-color: #efefef;
+  padding: 2px;
+}
+#resource-params div{
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 5px;
+}
+
+#resource-params div div{
+  margin: 4px;
+}
+#resource-param-0{
+  display: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 150;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.save-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 60%;
+  border-radius: 20px;
+}
+
+.modal.show {
+  display: block;
+}
+
+#class_modal{
+    background-color: white;
+    width: 70%;
+    position: relative;
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    height: 80%;
+    z-index: 1000;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 20px;
+    font-size: 20px;
+}
+
+.window-graphic {
+  display: none;
+  flex-direction: column;
+  height: 80%;
+  max-height: max-content;
+  width: 75%;
+  margin: 10% auto 10%;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  background-color: #fefefe;
+  border: 1px solid #888;
+  border-radius: 20px;;
+}

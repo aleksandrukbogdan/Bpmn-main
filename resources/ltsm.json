@@ -1,0 +1,47 @@
+{
+  "name": "LTSM",
+  "uri": "http://litsam.ru",
+  "prefix": "ltsm",
+  "types": [
+    {
+      "name": "props",
+      "superClass": [ "Element" ],
+
+      "properties": [
+        {
+          "name": "stream",
+          "isAttr": true,
+          "type": "Integer"
+        },
+        {
+          "name": "volume",
+          "isAttr": true,
+          "type": "Integer"
+        },
+        {
+          "name": "penalty_start",
+          "isAttr": true,
+          "type": "Integer"
+        },
+        {
+          "name": "penalty_angle",
+          "isAttr": true,
+          "type": "Integer"
+        },
+        {
+          "name": "availability_time",
+          "isAttr": true,
+          "type": "Integer"
+        },
+        {
+          "name": "availability_value",
+          "isAttr": true,
+          "type": "Integer"
+        }
+
+      ]
+    }
+  ],
+  "emumerations": [],
+  "associations": []
+}

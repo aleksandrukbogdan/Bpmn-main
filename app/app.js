@@ -12,7 +12,6 @@ import minimapModule from 'diagram-js-minimap';
 import Plotly from 'plotly.js-dist-min'
 
 
-import diagramXML2 from '../resources/monsg.bpmn'; // путь к заготовке схемы
 import diagramXML from '../resources/mytry.bpmn'; // путь к заготовке схемы
 
 import customModule from './custom'; // папка с надстройками bpmn-js
@@ -22,7 +21,8 @@ import ltsmExtension from '../resources/ltsm'; // подгрузка касто�
 
 import resourcePropertiesProvider from './custom';
 import ltsmPropertiesProvider from './custom';
-import { createElement } from '@bpmn-io/properties-panel/preact';
+
+import {ViewWindow} from './InterfaceJS/ViewWindow.js'
 
 const buttonSaveXML = document.querySelector('.button_save');
 const buttonShowResource = document.getElementById('resource_panel');
@@ -72,6 +72,22 @@ const bpmnModeler = new BpmnModeler({
   }
 });
 
+function CreateGrafDyno(data){
+  console.log(data)
+}
+
+const buttonViewVindow = document.getElementById('button_ViewWindow')
+buttonViewVindow.addEventListener('click', function(){
+  ViewWindow(bpmnModeler)
+})
+/*
+// Закрытие модального окна при клике на фон
+saveWindow.addEventListener('click', function(event) {
+  if (event.target === saveWindow) {
+    saveWindow.classList.remove('show');
+  }
+});*/
+
 
 // import file button
 const buttonImportXML = document.querySelector('.button_import');
@@ -96,10 +112,8 @@ buttonSaveXML.addEventListener('click', async function() {
   try {
 
     const { xml } = await bpmnModeler.saveXML();
-    console.log(xml);
     // Создаем Blob объект с типом text/xml
     const blob = new Blob([xml], { type: 'application/bpmn' });
-    console.log(blob, "nen")
     // Создаем ссылку для скачивания файла
     const url = URL.createObjectURL(blob);
     const downloadLink = document.getElementById('downloadLink');
@@ -117,24 +131,30 @@ const downloadLink_server = document.getElementById('downloadLink-server');
 // Обработчик нажатия на загрузку на сервер
 downloadLink_server.addEventListener("click", async function() {
   const { xml } = await bpmnModeler.saveXML();
-  console.log(xml);
   // Создаем Blob объект с типом text/xml
   const blob = new Blob([xml], { type: 'application/bpmn' });
-  console.log(blob, "nen")
   // Создаем ссылку для скачивания файла
   const url = URL.createObjectURL(blob);
   var fd = new FormData();
-  download_text.innerText = "Файл загружается на сервер..."
   fd.append('upload', blob, 'file.bpmn');
-  await $.ajax({
-      type: 'POST',
-      url: 'http://localhost:3000/api/',
-      data: fd,
-      processData: false,
-      contentType: false
-  }).done(function(data) {
-   console.log(data);
-});
+  try{
+  // Здесь запускается окно ожидания расчёта
+    await $.ajax({
+        type: 'POST',
+        url: 'http://localhost:3000/api/',
+        data: fd,
+        processData: false,
+        contentType: false
+    }).done(function(data) {
+    console.log(data);
+    //закрытие окна ожидания
+    // тут запускается функция отрисовки, так как тут уже результаты расчёта
+    CreateGrafDyno(data)
+    console.log("Расчёты завершены")
+    });
+  }catch (error){
+    console.log(error)
+  }
 })
 var save_content = document.getElementById("save-content")
 var window_graphic = document.getElementById("window-graphic");
@@ -168,8 +188,6 @@ bpmnModeler.importXML(file).then(() => {
   const moddle = bpmnModeler.get('moddle'),
         modeling = bpmnModeler.get('modeling');
   const RootElement = bpmnModeler._definitions.rootElements
-
-  
   let businessObject,
       element;
 

@@ -282,3 +282,21 @@ button:hover {
   margin: 5px;
   width: 15%;
 }
+table{
+  display: block;
+  border: 1px solid black;
+  color: black;
+  margin-top: 4%;
+  align-self: center;
+  
+}
+h1 {
+  font-size: medium;
+}
+td {
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  word-break: break-all;
+  word-wrap: break-word;
+}

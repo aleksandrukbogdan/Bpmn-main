@@ -136,6 +136,12 @@
     <task id="_25" name="Процесс (3)">
       <extensionElements>
         <ltsm:props stream="30,84" volume="30,84" penalty_start="0" penalty_angle="15"/>
+        <ltsm:props availability_time="15" availability_value="1"/>
+        <ltsm:props availability_time="20" availability_value="0"/>
+        <ltsm:props availability_time="28" availability_value="1"/>
+        <ltsm:props availability_time="37" availability_value="0"/>
+        <ltsm:props availability_time="80" availability_value="1"/>
+        <ltsm:props availability_time="100" availability_value="0"/>
       </extensionElements>
       <incoming>_23</incoming>
       <outgoing>_32</outgoing>
@@ -222,6 +228,13 @@
     <resourceParameter id="RS_2_P_1" name="name" />
     <resourceParameter id="RS_2_P_2" name="threads" />
     <resourceParameter id="RS_2_P_3" name="productivity" />
+    <extensionElements>
+      <ltsm:props availability_time="15" availability_value="0"/>
+      <ltsm:props availability_time="30" availability_value="1"/>
+      <ltsm:props availability_time="55" availability_value="0"/>
+      <ltsm:props availability_time="80" availability_value="1"/>
+      <ltsm:props availability_time="100" availability_value="0"/>
+    </extensionElements>
   </resource>
   <resource id="RS_3" name="Исполнитель второго интервала">
     <resourceParameter id="RS_3_P_1" name="name" />

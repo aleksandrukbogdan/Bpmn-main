@@ -99,7 +99,6 @@ const saveWindow = document.getElementById('save-window');
 // Обработчик клика по кнопке "Сохранить"
 buttonSaveXML.addEventListener('click', async function() {
   try {
-
     const { xml } = await bpmnModeler.saveXML();
     console.log(xml);
     // Создаем Blob объект с типом text/xml
@@ -108,7 +107,7 @@ buttonSaveXML.addEventListener('click', async function() {
     // Создаем ссылку для скачивания файла
     const url = URL.createObjectURL(blob);
     const downloadLink = document.getElementById('downloadLink');
-    downloadLink.href = url;
+    //downloadLink.href = url;
     let reader = new FileReader();
     saveWindow.classList.add('show');
     
@@ -117,51 +116,71 @@ buttonSaveXML.addEventListener('click', async function() {
   }
 
 });
+var save_content = document.getElementById("save-content")
+var window_graphic = document.getElementById("window-graphic");
 var download_text = document.getElementById('download-text')
 const downloadLink_server = document.getElementById('downloadLink-server');
 // Обработчик нажатия на загрузку на сервер
 downloadLink_server.addEventListener("click", async function() {
   const { xml } = await bpmnModeler.saveXML();
-  console.log(xml);
   // Создаем Blob объект с типом text/xml
   const blob = new Blob([xml], { type: 'application/bpmn' });
   console.log(blob, "nen")
   // Создаем ссылку для скачивания файла
-  const url = URL.createObjectURL(blob);
   var fd = new FormData();
   download_text.innerText = "Файл загружается на сервер..."
   fd.append('upload', blob, 'file.bpmn');
-  await $.ajax({
+  try {
+    $.ajax({
       type: 'POST',
       url: 'http://localhost:3000/api/',
       data: fd,
       processData: false,
       contentType: false
   }).done(function(data) {
-   console.log(data);
+    let data_keys = [];
+    let data_values = [];
+    for (let key in data) {
+      data_keys.push(key);
+      data_values.push(data[key]);
+    }
+    createTableBody(data_keys, data_values);
+    save_content.style.display = 'none';
+    window_graphic.style.display = "flex";
+    console.log("Расчеты завершены");
 });
+  }catch(error){
+    console.log(error);
+  }
 })
-var save_content = document.getElementById("save-content")
-var window_graphic = document.getElementById("window-graphic");
-//window_graphic.style.display = "none";
-var button_down_collection = document.querySelectorAll("a");
-console.log(button_down_collection);
-button_down_collection.forEach(function(elem) {
-  elem.addEventListener("click", async function() {
-      save_content.style.display = 'none';
-      //saveWindow.classList.remove("show");
-      window_graphic.style.display = "flex";
-      
-  });
-});
 
+
+function createTableBody(data_keys, data_values) {
+  let rows = 2;
+  let table = document.getElementById('graph_table');
+  table.innerHTML = ("<tr>" + ("<td></td>").repeat(data_keys.length) + "</tr>").repeat(rows);
+  let td = document.querySelectorAll('td');
+  for(let i = 0; i < data_keys.length; i++) {
+    td[i].textContent = data_keys[i];
+  }
+  for(let i = data_keys.length; i < td.length; i++) {
+    for(let j = 1; j < data_values[i-data_keys.length].length; j++){
+      td[i].innerHTML += String(data_values[i-data_keys.length][j]) + "<br>";
+    }
+  }
+    
+}
 
 
 // Закрытие модального окна при клике на фон
 saveWindow.addEventListener('click', function(event) {
   if (event.target === saveWindow) {
     saveWindow.classList.remove('show');
+    save_content.style.display = 'block';
+    window_graphic.style.display = 'none';
+    download_text.innerText = "Файл готов к загрузке"
   }
+  
 });
 
 // import XML

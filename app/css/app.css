@@ -137,7 +137,7 @@ header {
   box-shadow: 0px 1px 2px 2px #33333344;
   transition: all 0.3s ease;
 }
-button, .button_import, #file{
+header button, .button_import, #file{
   background-color: #fff;
   height: 100%;
   width: 8%;
@@ -267,4 +267,18 @@ button:hover {
   background-color: #fefefe;
   border: 1px solid #888;
   border-radius: 20px;;
+}
+
+#SelectViewObgect div{
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  padding: 10px 5px;
+}
+
+#SelectViewObgect button{
+  padding: 5px;
+  margin: 5px;
+  width: 15%;
 }

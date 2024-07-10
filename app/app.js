@@ -22,7 +22,7 @@ import ltsmExtension from '../resources/ltsm'; // подгрузка касто�
 
 import resourcePropertiesProvider from './custom';
 import ltsmPropertiesProvider from './custom';
-import { createElement } from '@bpmn-io/properties-panel/preact';
+import {ViewWindow} from './InterfaceJS/ViewWindow'
 
 const buttonSaveXML = document.querySelector('.button_save');
 const buttonShowResource = document.getElementById('resource_panel');
@@ -72,6 +72,11 @@ const bpmnModeler = new BpmnModeler({
   }
 });
 
+
+const buttonViewVindow = document.getElementById('button_ViewWindow')
+buttonViewVindow.addEventListener('click', function(){
+  ViewWindow(bpmnModeler)
+})
 
 // import file button
 const buttonImportXML = document.querySelector('.button_import');

@@ -81,7 +81,7 @@
   flex-direction: row;
   flex-wrap: nowrap;
   width: 100%;
-  height: 100vh;
+  height: 93vh;
   justify-content: space-between;
 }
 #container{
@@ -135,12 +135,12 @@ header {
   display: flex;
   flex-direction: row;
   box-shadow: 0px 1px 2px 2px #33333344;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
 }
 header button, .button_import, #file{
   background-color: #fff;
   height: 100%;
-  width: 8%;
+  width: 10%;
   color: #333;
   border:none;
   font-weight: 500;
@@ -149,10 +149,34 @@ header button, .button_import, #file{
   position: relative;
   font-size: large;
 }
+#button_ViewWindow {
+  width: 20%;
+}
+.Resource, .Task {
+  background-color: #FAFAFA;
+  border: none;
+  -webkit-box-shadow: 5px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  -moz-box-shadow: 5px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  box-shadow: 5px 4px 8px 0px rgba(34, 60, 80, 0.2);
+}
+#ViewWindowP{
+  margin-bottom: 1rem;
+  font-weight: bolder;
+  font-size: larger;
+}
+button.Resource:hover, button.Task:hover {
+  background-color: #fff;;
+  color: #0d60ad;
+  letter-spacing: 0.1mm;
+  text-decoration: underline 1px #0d60ad;
+  transition: all 0.1s ease;
+  transform: scale(1.07);
+  border: #0d60ad 1px solid;
+}
 button:hover {
   background-color: #fff;;
   color: #0d60ad;
-  letter-spacing: 0.3mm;
+  letter-spacing: 0.1mm;
   text-decoration: underline 2px #0d60ad;
   transition: all 0.3s linear;
 }
@@ -167,7 +191,7 @@ button:hover {
   font-weight: 500;
   text-decoration: none;
   color: #333;
-  margin-left: 3%;
+  margin-right: 3%;
 }
 
 .modal .save-content p {
@@ -175,8 +199,7 @@ button:hover {
 }
 
 .button_down:hover {
-  text-decoration: none;
-  letter-spacing: 0.3mm;
+  letter-spacing: 0.1mm;
   color: #0d60ad;
   text-decoration: underline 2px #0d60ad;
   transition: all 0.3s linear;
@@ -247,12 +270,13 @@ button:hover {
     left: 10%;
     right: 10%;
     top: 10%;
-    height: 80%;
     z-index: 1000;
     padding: 20px;
     border: 1px solid black;
     border-radius: 20px;
     font-size: 20px;
+    min-height: 80%;
+    max-height: max-content;
 }
 
 .window-graphic {
@@ -275,6 +299,8 @@ button:hover {
   border-top: 2px solid black;
   border-bottom: 2px solid black;
   padding: 10px 5px;
+  padding-bottom: 0px;
+  margin-bottom: auto;
 }
 
 #SelectViewObgect button{

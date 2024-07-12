@@ -1,4 +1,0 @@
-TODO:
-1.  ✅  Validate
-2.  ⚡  ns0 <-> ltsm
-2.  ❌  ...

@@ -12,7 +12,6 @@ import minimapModule from 'diagram-js-minimap';
 import Plotly from 'plotly.js-dist-min'
 
 
-import diagramXML2 from '../resources/monsg.bpmn'; // путь к заготовке схемы
 import diagramXML from '../resources/mytry.bpmn'; // путь к заготовке схемы
 
 import customModule from './custom'; // папка с надстройками bpmn-js
@@ -79,7 +78,7 @@ buttonViewVindow.addEventListener('click', function(){
 })
 
 // import file button
-const buttonImportXML = document.querySelector('.button_import');
+const buttonImportXML = document.getElementById('file-BPMN');
 const reader = new FileReader();
 buttonImportXML.addEventListener('change', function(file_input) {
   if (file_input.target.files[0]) {

@@ -138,6 +138,7 @@ downloadLink_server.addEventListener("click", async function() {
       processData: false,
       contentType: false
   }).done(function(data) {
+    console.log(data)
     let data_keys = [];
     let data_values = [];
     for (let key in data) {

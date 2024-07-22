@@ -99,22 +99,12 @@
   min-width: 10%;
   border-left: 1px solid black;
 }
-#resource-window{
-  position: absolute;
-  border: 3px solid #5c5c5c;
-  left: 15%;
-  right: 20%;
-  top: 10%;
-  bottom: 15%;
-  border-radius: 15px;
-  background-color: #fafafa;
-  overflow: auto;
-}
+
 
 #resource-flex{
   display: flex;
   border-top: 2px solid #5c5c5c;
-  flex: 1;
+  height: 80vh;
 }
 #resource-list{
   min-width: 20%;
@@ -235,12 +225,6 @@ button:hover {
   text-align: center;
   padding: 3px;
 }
-.resource-flex-col{
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  
-}
 
 .resource{
   border-bottom: 1px solid black;
@@ -289,7 +273,7 @@ button:hover {
 
 #class_modal{
     background-color: white;
-    width: 70%;
+    width: 80%;
     position: relative;
     left: 10%;
     right: 10%;

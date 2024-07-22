@@ -5,6 +5,11 @@ var arrayResource = []
 const TaskWindow = document.getElementById('task-window');
 const SelectViewObgect = document.getElementById('SelectViewObgect')
 
+TaskWindow.addEventListener('click', function(event) {
+  if (event.target === TaskWindow) {
+    TaskWindow.classList.remove('show');
+  }
+});
 
 function ViewWindow(bpmnModeler){
     arrayTask = []

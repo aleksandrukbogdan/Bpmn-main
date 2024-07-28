@@ -334,3 +334,23 @@ td {
   word-break: break-all;
   word-wrap: break-word;
 }
+.graph_number {
+  width: 100%;
+  height: fit-content;
+  border-bottom: #0d60ad 1px solid;
+  background-color: #fefefe;
+  display: flex;
+  flex-direction: row;
+}
+.graph_number .id_text {
+  width: 5%;
+  font-size: medium;
+  border: 1px solid #0d60ad;
+  border-bottom: none;
+  background-color: #fffdfd;
+}
+
+#Gisto_task, #Gisto_resource {
+  position: relative;
+  float: inline-end;
+}

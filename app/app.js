@@ -10,6 +10,8 @@ import {
 
 import minimapModule from 'diagram-js-minimap';
 
+import Plotly from 'plotly.js-dist-min'
+
 import diagramXML from '../resources/mytry.bpmn'; // путь к заготовке схемы
 
 import customModule from './custom'; // папка с надстройками bpmn-js
@@ -102,15 +104,8 @@ var save_content = document.getElementById("save-content")
 var window_graphic = document.getElementById("window-graphic");
 var download_text = document.getElementById('download-text')
 const downloadLink_server = document.getElementById('downloadLink-server');
-var graph_1 = document.getElementById('Gisto_task1');
-var graph_2 = document.getElementById('Gisto_resource1');
-var graph_3 = document.getElementById('Gisto_task2');
-var graph_4 = document.getElementById('Gisto_resource2');
-var graph_5 = document.getElementById('Gisto_task3');
-var graph_6 = document.getElementById('Gisto_resource3');
-var graph_7 = document.getElementById('Gisto_task4');
-var graph_8 = document.getElementById('Gisto_resource4');
-var graphs = [graph_1, graph_2, graph_3, graph_4, graph_5, graph_6, graph_7, graph_8]; 
+var WorkTask = [];
+var WorkResource = [];
 // Обработчик нажатия на загрузку на сервер
 downloadLink_server.addEventListener("click", async function() {
   const { xml } = await bpmnModeler.saveXML();
@@ -131,8 +126,7 @@ downloadLink_server.addEventListener("click", async function() {
   }).done(async function(data) {
     var all_keys = [];
     var all_values = [];
-    var WorkTask = [];
-    var WorkResource = [];
+
     WorkTask.push(data['WorkTask'])
     WorkResource.push(data['WorkResource'])
 
@@ -154,19 +148,12 @@ downloadLink_server.addEventListener("click", async function() {
     }
     console.log(data_k);
     console.log(data_v);
+    save_content.style.display = 'none';
+    window_graphic.style.display = "flex";
     await Scatterpolar(data_k, data_v);
     createTableBody(data_k, data_v);
     Gisto_hrzn(WorkTask, 'Gisto_task', 1);
     Gisto_hrzn(WorkResource, 'Gisto_resource', 1);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 2);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 2);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 3);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 3);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 4);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 4);
-    save_content.style.display = 'none';
-    window_graphic.style.display = "flex";
-    grapf_page(1);
     console.log("Расчеты завершены");
 });
   }catch(error){
@@ -260,8 +247,9 @@ function createTableBody(data_keys, data_values) {
     }
   }   
 }
-var names = ['Gisto_task1','Gisto_resource1', 'Gisto_task2','Gisto_resource2', 'Gisto_task3','Gisto_resource3', 'Gisto_task4','Gisto_resource4'];
+
 var n = 0;
+
 function Gisto_hrzn(Work_datas, name, grapf_id){
   let work_data = Work_datas[0][grapf_id-1];
   let datas = [];
@@ -274,10 +262,8 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
   console.log(datas);
   let y_toappend =[];
   let x_toappend = [];
-  let time = [];
-  let base_toappend = [];
   datas[0].forEach((ind)=> {
-    if (name.slice(0, -1) === 'Gisto_resource') {
+    if (name === 'Gisto_resource') {
     y_toappend.push(ind['Resource']);
     y_toappend.push(ind['Resource']);
     }
@@ -291,7 +277,6 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
   
   console.log(y_toappend);
   console.log(x_toappend);
-  console.log(base_toappend);
   /*
   for(let items in datas) {
     for (let key in items){
@@ -334,7 +319,7 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
   }
   let layout = {
     height: 500,
-    x: 1,
+    
     title:title,
     yaxis: {
       showgrid: false,
@@ -344,46 +329,21 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
     }
   };
   
-  Plotly.newPlot(names[n], data, layout);
+  Plotly.newPlot(name, data, layout);
   n += 1;
 }
 
-function grapf_page(ind) {
-  switch (ind) {
-    case 1:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_1.style.display = 'flex';
-      graph_2.style.display = 'flex';
-      break;
-    case 2:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_3.style.display = 'flex';
-      graph_4.style.display = 'flex';
-      break;
-    case 3:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_5.style.display = 'flex';
-      graph_6.style.display = 'flex';
-      break;
-    case 4:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_7.style.display = 'flex';
-      graph_8.style.display = 'flex';
-      break;
-    default:
-      graph_1.style.display = 'flex';
-      graph_2.style.display = 'flex';
-      break;
-  }
-}
+var button_pages = document.querySelectorAll('button.id_text');
+button_pages.forEach(function(elem) {
+  elem.addEventListener("click", async function() {
+    let ind = Number(elem.textContent);
+    console.log(ind);
+    Gisto_hrzn(WorkTask, 'Gisto_task', ind);
+    Gisto_hrzn(WorkResource, 'Gisto_resource', ind);
+      
+  });
+});
+
 
 
 // Закрытие модального окна при клике на фон

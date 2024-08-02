@@ -10,18 +10,26 @@
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/properties-panel.css" />
   <link rel="stylesheet" href="css/diagram-js-minimap.css"/>
+  <link rel="stylesheet" href="css/castom_menu.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
  
 </head>
 <body>
   <header>
-    <label class="input-file">
-      <input type="file" name="file" id="file-BPMN">		
-      <span>Открыть файл</span>
-    </label>
-    <button class="button_save">Сохранить</button>
-    <button id="resource_panel">Ресурсы</button>
-    <button class="button_ViewWindow" id="button_ViewWindow">График окон видимости</button>
+    <div class="header_container">
+      <label class="input-file">
+        <input type="file" name="file" id="file-BPMN">		
+        <span><img class="icon_header" src="./vendor/icons/assets/open_folder.png">Открыть файл</span>
+      </label>
+      <button class="button_save"><img class="icon_header" src="./vendor/icons/assets/save.png">Сохранить</button>
+      <button id="resource_panel"><img class="icon_header" src="./vendor/icons/assets/resource.png">Ресурсы</button>
+      <button class="button_ViewWindow" id="button_ViewWindow">График окон видимости</button>
+    </div>
+    <div class="header_container">
+      <button class="button_start"><img class="icon_header" src="./vendor/icons/assets/start.png"></button>
+      <button class="button_start"><img class="icon_header" src="./vendor/icons/assets/rezult.png">Результаты расчёта</button>
+    </div>
+    
   </header>
   <div class="content">
     <div class="flex_workplace">

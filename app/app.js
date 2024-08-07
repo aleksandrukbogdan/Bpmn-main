@@ -241,35 +241,27 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
   let work_data = Work_datas[0][grapf_id-1];
   let datas = [];
   let color_toappend = [];
-  for(let key in work_data){
-    if (key === 'data') {
-      datas.push(work_data[key]);
-    }
-    else if(key === 'colors'){
-      color_toappend.push(work_data[key]);
-    }
-  }
+  let legeng_toappend = [];
+  datas.push(work_data['data']);
+  color_toappend.push(work_data['colors']);
+  
   console.log(color_toappend);
   console.log(work_data);
   console.log(datas);
   let y_toappend =[];
   let x_toappend = [];
   datas[0].forEach((ind)=> {
-    if (name === 'Gisto_resource') {
-    y_toappend.push(ind['Resource']);
-    y_toappend.push(ind['Resource']);
-    }
-    else {
     y_toappend.push(ind['Task']);
     y_toappend.push(ind['Task']);
-    }
+    legeng_toappend.push(ind['Resource']);
+    //legeng_toappend.push(ind['Resource']);
     x_toappend.push(ind['Start']);
     x_toappend.push(ind['Finish']);
-    
   })
   
   console.log(y_toappend);
   console.log(x_toappend);
+  console.log(legeng_toappend);
   /*
   for(let items in datas) {
     for (let key in items){
@@ -285,46 +277,104 @@ function Gisto_hrzn(Work_datas, name, grapf_id){
  let data = [];
  let temp_x = [];
  let temp_y = [];
- let temp_color = [];
  let temp_name = [];
  let j = 0;
  let data_sets = {x:[], y:[], type: '', 
   opacity: 0.5,
-  line: { color: 'red', width: 20 },
+  line: { color: 'red', width: 40 },
   mode: 'lines',  name:''}
  for (let i = 0; i < y_toappend.length/2; i++) {
   temp_x.push(x_toappend[j]);
   temp_x.push(x_toappend[j+1]);
   temp_y.push(y_toappend[j]);
   temp_y.push(y_toappend[j+1]);
-  temp_color.push(color_toappend[i]);
   j += 2;
+
   data_sets = {x: temp_x, y: temp_y, type: 'scatter', 
-    opacity: 0.5, line: {color: temp_color, width: 20 }, 
-    mode: 'lines', name: temp_y[i]}
+    opacity: 0.5, line: {color: color_toappend[0][i], width: 30 }, 
+    mode: 'lines', name: legeng_toappend[i]}
   data[i] = data_sets;
   temp_x = [];
   temp_y = [];
-  temp_color = [];
   temp_name = [];
  }
  let title = '';
   if (n%2 == 0) {
-    title = 'Ресурсы';
+    title = 'Расписание работ по ресурсам';
   }
   else {
-    title = 'Задачи';
+    title = 'Расписание работ по задачам';
   }
   let layout = {
-    height: 500,
-    
-    title:title,
+    showlegend: true,
+    legend: {
+      orientation: "h",
+      family: 'Times New Roman',
+      size: 12,
+      color: 'rgb(82, 82, 82)'
+    },
+    height: 400,
+    width: 900,
+    //title: title,
+    xaxis: {
+      showline: true,
+      showgrid: false,
+      showticklabels: true,
+      linecolor: 'rgb(204,204,204)',
+      linewidth: 2,
+      autotick: true,
+      ticks: 'outside',
+      tickcolor: 'rgb(204,204,204)',
+      tickwidth: 2,
+      ticklen: 5,
+      tickfont: {
+        family: 'Times New Roman',
+        size: 12,
+        color: 'rgb(82, 82, 82)'
+      }
+    },
     yaxis: {
       showgrid: false,
-      zeroline: true,
+      zeroline: false,
       showline: true,
-      showticklabels: true
-    }
+      showticklabels: true,
+      linecolor: 'rgb(204,204,204)',
+      linewidth: 2,
+      autotick: false,
+      ticks: 'outside',
+      tickcolor: 'rgb(204,204,204)',
+      tickwidth: 2,
+      ticklen: 5,
+      tickfont: {
+        family: 'Times New Roman',
+        size: 12,
+        color: 'rgb(82, 82, 82)'
+      }
+    },
+    autosize: true,
+    margin: {
+      autoexpand: false,
+      l: 200,
+      r: 100,
+      t: 100
+    },
+    annotations: [
+      {
+        xref: 'paper',
+        yref: 'paper',
+        x: 0.0,
+        y: 1.05,
+        xanchor: 'left',
+        yanchor: 'bottom',
+        text: title,
+        font:{
+          family: 'Times New Roman',
+          size: 20,
+          color: 'rgb(37,37,37)'
+        },
+        showarrow: false
+      }
+    ]
   };
   
   Plotly.newPlot(name, data, layout);

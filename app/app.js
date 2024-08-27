@@ -10,49 +10,198 @@ import {
 
 import minimapModule from 'diagram-js-minimap';
 
-import diagramXML from '../resources/mytry.bpmn'; // путь к заготовке схемы
-
 import customModule from './custom'; // папка с надстройками bpmn-js
 
 import qaExtension from '../resources/qa'; // подгрузка кастмных моделей обьекта qa
 import ltsmExtension from '../resources/ltsm'; // подгрузка кастомных моделей обьекта list
+import typeObject from '../resources/typeObject'
+
+import download from 'downloadjs';
 
 import resourcePropertiesProvider from './custom';
 import ltsmPropertiesProvider from './custom';
+
 import {ViewWindow} from './InterfaceJS/ViewWindow'
 import {UppdateResourceList} from './InterfaceJS/ResourceWindow'
+import { StartModelling } from './InterfaceJS/ModellingStart';
+import { CreateWindowResult } from './InterfaceJS/VisualizationCalculationResults';
+import { ProcessingGlobalActions, InitWorkflow } from './InterfaceJS/WorkflowButton'
+import { Show_TypeList } from './InterfaceJS/WorkflowButton'
 
-const buttonSaveXML = document.querySelector('.button_save');
+const buttonSaveXML = document.getElementById("buttonSaveXML")
+const buttonSaveSVG = document.getElementById("buttonSaveSVG")
+const downloadLink_server = document.getElementById('button_start');
+
 const HIGH_PRIORITY = 1500; // повышаем приоритет что бы система была важнее дефолтной(1000)
 
-const containerEl = document.getElementById('container') //тут всё отображение
+
+const project_list = document.getElementById("project_list")
+const flex_workplace = document.getElementById("flex_workplace")
+const content = document.getElementById("content")
 
 
+var modelling_rezult = {} // результаты расчётов
+let DiagramList = []   //список данных диаграм
+let selectDiagram_ID = 0 // выбранная диаграма 
+let BPMNLIst = []  //список обьектов редактора с диаграммами
+let DiagramList_max_id = 0 //max id DiagramList
 
+import diagramXML from '../resources/mytry.bpmn'; // путь к заготовке схемы
+DiagramList.push({xml: diagramXML, name: "mytry.bpmn", id: 0})
+import diagramXML2 from '../resources/monsg.bpmn'
+DiagramList.push({xml: diagramXML2, name: "monsg.bpmn", id: 1})
+import diagramINIT from '../resources/new.bpmn'
 
-// create modeler
-const bpmnModeler = new BpmnModeler({
-  container: containerEl,
-  propertiesPanel: { // из примера с панелью св
-    parent: '#properties'
-  },
-  additionalModules: [ // подгрузка модулей
-    customModule,
-    minimapModule,
-    
-    BpmnPropertiesPanelModule, // из примера с панелью св
-    BpmnPropertiesProviderModule, // из примера с панелью св
-    resourcePropertiesProvider,
-    ltsmPropertiesProvider,
-    TokenSimulationModule
-    
-  ],
-  moddleExtensions: {
-    qa: qaExtension, 
-    ltsm: ltsmExtension // добавление расширения модели
+function UppdateProjectListDiv(diagram){
+  let element = document.createElement("div")
+  element.className = "project_Lable"
+  element.id = diagram.id
+  element.innerHTML = diagram.name
+  let deleteProject = document.createElement("img")
+  deleteProject.className = "project_Lable_del"
+  deleteProject.src = "./vendor/icons/assets/close.svg"
+  deleteProject.alt = " - "
+  element.append(deleteProject)
+
+  project_list.append(element)
+
+  let container = document.createElement("div")
+  container.id = "container-"+diagram.id
+  container.className = "container"
+  container.classList.add("hide")
+  flex_workplace.append(container)
+
+  let properties = document.createElement("div")
+  properties.id = "properties-"+diagram.id
+  properties.className = "properties"
+  properties.classList.add("hide")
+  content.append(properties)
+  
+  let bpmn = new BpmnModeler({
+    container: document.getElementById("container-"+diagram.id),
+    propertiesPanel: { // из примера с панелью св
+      parent: '#properties-'+diagram.id
+    },
+    additionalModules: [ // подгрузка модулей
+      customModule,
+      minimapModule,
+      
+      BpmnPropertiesPanelModule, // из примера с панелью св
+      BpmnPropertiesProviderModule, // из примера с панелью св
+      resourcePropertiesProvider,
+      ltsmPropertiesProvider,
+      TokenSimulationModule
+      
+    ],
+    moddleExtensions: {
+      qa: qaExtension, 
+      ltsm: ltsmExtension, // добавление расширения модели
+      to: typeObject
+    }})
+  importXMLfromFile(diagram.xml, bpmn)
+  BPMNLIst.push(bpmn)
+  DiagramList_max_id++
+  addNewProjectButton()
+}
+function addNewProjectButton(){
+  let rez = document.getElementById("new_project_Lable")
+  if(rez !== null){
+    rez.remove()
   }
-});
+  let element = document.createElement("div")
+  element.className = "project_Lable"
+  element.id = "new_project_Lable"
+  element.innerHTML = " + "
+  project_list.append(element)
+}
 
+UppdateProjectListDiv(DiagramList[0])//добавляем 2 базовые диаграммы
+UppdateProjectListDiv(DiagramList[1])
+
+project_list.addEventListener('wheel', event => {
+  const toLeft  = event.deltaY < 0 && project_list.scrollLeft > 0
+  const toRight = event.deltaY > 0 && project_list.scrollLeft < project_list.scrollWidth - project_list.clientWidth
+
+  if (toLeft || toRight) {
+    event.preventDefault()
+    project_list.scrollLeft += event.deltaY
+  }
+})
+
+project_list.addEventListener("click", (target) => {
+  if(target.target.className == "project_Lable"){
+    if(target.target.id == "new_project_Lable"){
+      DiagramList.push({xml: diagramINIT, name: "new.bpmn", id: DiagramList_max_id})
+      UppdateProjectListDiv(DiagramList[DiagramList.length - 1])
+      selectDiagram(DiagramList_max_id - 1)
+    }
+    else{
+      selectDiagram(target.target.id)
+    }
+    
+  }
+  else if(target.target.className == "project_Lable_del"){
+    let NewDiagramList = []
+    let NewBPMNLIst = []
+    for (let index = 0; index < DiagramList.length; index++) {
+      const element = DiagramList[index];
+      if(element.id != target.target.parentElement.id){
+        NewDiagramList.push(element)
+        NewBPMNLIst.push(BPMNLIst[index])
+      }
+    }
+    console.log("fdf",NewDiagramList, NewBPMNLIst)
+    document.getElementById("properties-"+target.target.parentElement.id).remove()
+    document.getElementById("container-"+target.target.parentElement.id).remove()
+    target.target.parentElement.remove()
+    DiagramList = NewDiagramList
+    BPMNLIst = NewBPMNLIst
+    if(DiagramList.length < 1){
+      DiagramList_max_id = 0
+      DiagramList.push({xml: diagramINIT, name: "new.bpmn", id: DiagramList_max_id})
+      UppdateProjectListDiv(DiagramList[DiagramList.length - 1])
+      selectDiagram_ID = -1
+      selectDiagram(0)
+    }
+    else if(selectDiagram_ID == target.target.parentElement.id){
+      selectDiagram(DiagramList[0].id)
+    }
+  }
+})
+
+let bpmnModeler = BPMNLIst[selectDiagram_ID] // начальные настройки 
+InitWorkflow(bpmnModeler)
+document.getElementById("container-"+selectDiagram_ID).classList.remove("hide")
+document.getElementById("properties-"+selectDiagram_ID).classList.remove("hide")
+document.getElementById(selectDiagram_ID).classList.add("select")
+
+
+function selectDiagram(id){
+  console.log(DiagramList, BPMNLIst)
+  if(id !== selectDiagram_ID)
+  {
+    try {
+      document.getElementById("container-"+selectDiagram_ID).classList.add("hide")
+      document.getElementById("properties-"+selectDiagram_ID).classList.add("hide")
+      document.getElementById(selectDiagram_ID).classList.remove("select")
+    } catch (error) {
+      console.log(error)
+    }
+    let index_array = 0
+    for (let index = 0; index < DiagramList.length; index++) {
+      const element = DiagramList[index];
+      if(element.id == id){
+        index_array = index
+      }
+    }
+    bpmnModeler = BPMNLIst[index_array]
+    InitWorkflow(bpmnModeler)
+    selectDiagram_ID = id
+    document.getElementById("container-"+DiagramList[index_array].id).classList.remove("hide")
+    document.getElementById("properties-"+DiagramList[index_array].id).classList.remove("hide")
+    document.getElementById(selectDiagram_ID).classList.add("select")
+  }
+}
 
 const buttonViewVindow = document.getElementById('button_ViewWindow')
 buttonViewVindow.addEventListener('click', function(){
@@ -63,15 +212,24 @@ const buttonShowResource = document.getElementById('resource_panel');
 buttonShowResource.addEventListener('click', async function() {
   UppdateResourceList(bpmnModeler)
 })
+//отрисовка графиков по нажатью на кнопку результаты расчёта
+document.getElementById("button_modelling_rezult").addEventListener("click", async () =>{
+  CreateWindowResult(modelling_rezult)
+})
+
+
 // import file button
 const buttonImportXML = document.getElementById('file-BPMN');
-const reader = new FileReader();
+
 buttonImportXML.addEventListener('change', function(file_input) {
   if (file_input.target.files[0]) {
     var file = file_input.target.files[0];
+    let reader = new FileReader();
     reader.readAsText(file);
     reader.addEventListener('load', (e) => {
-      importXMLfromFile(reader.result);
+      DiagramList.push({xml: reader.result, name: file.name, id: DiagramList_max_id})
+      UppdateProjectListDiv(DiagramList[DiagramList.length - 1])
+      selectDiagram(DiagramList_max_id - 1)
     });
     reader.addEventListener('error', () => {
       console.error(`Произошла ошибка при чтении файла`);
@@ -80,348 +238,47 @@ buttonImportXML.addEventListener('change', function(file_input) {
 })
 
 // save file button
-const saveWindow = document.getElementById('save-window');
-// Обработчик клика по кнопке "Сохранить"
 buttonSaveXML.addEventListener('click', async function() {
   try {
-    const { xml } = await bpmnModeler.saveXML();
-    //console.log(xml);
-    const blob = new Blob([xml], { type: 'application/bpmn' });
-    const url = URL.createObjectURL(blob);
-    const downloadLink = document.getElementById('downloadLink');
-    downloadLink.href = url;
-    saveWindow.classList.add('show');
-    
+    const { xml } = await bpmnModeler.saveXML({ format: true });
+    download(xml, 'diagram.bpmn' ,'application/xml')
   } catch (err) {
     console.log(err);
-    alert("ERROR")
   }
-
 });
-var save_content = document.getElementById("save-content")
-var window_graphic = document.getElementById("window-graphic");
-var download_text = document.getElementById('download-text')
-const downloadLink_server = document.getElementById('downloadLink-server');
-var graph_1 = document.getElementById('Gisto_task1');
-var graph_2 = document.getElementById('Gisto_resource1');
-var graph_3 = document.getElementById('Gisto_task2');
-var graph_4 = document.getElementById('Gisto_resource2');
-var graph_5 = document.getElementById('Gisto_task3');
-var graph_6 = document.getElementById('Gisto_resource3');
-var graph_7 = document.getElementById('Gisto_task4');
-var graph_8 = document.getElementById('Gisto_resource4');
-var graphs = [graph_1, graph_2, graph_3, graph_4, graph_5, graph_6, graph_7, graph_8]; 
-// Обработчик нажатия на загрузку на сервер
-downloadLink_server.addEventListener("click", async function() {
-  const { xml } = await bpmnModeler.saveXML();
-  // Создаем Blob объект с типом text/xml
-  const blob = new Blob([xml], { type: 'application/bpmn' });
-  console.log(blob, "nen")
-  // Создаем ссылку для скачивания файла
-  var fd = new FormData();
-  download_text.innerText = "Файл загружается на сервер..."
-  fd.append('upload', blob, 'file.bpmn');
+buttonSaveSVG.addEventListener('click', async function() {
   try {
-    $.ajax({
-      type: 'POST',
-      url: 'http://localhost:3000/api/',
-      data: fd,
-      processData: false,
-      contentType: false
-  }).done(async function(data) {
-    var all_keys = [];
-    var all_values = [];
-    var WorkTask = [];
-    var WorkResource = [];
-    WorkTask.push(data['WorkTask'])
-    WorkResource.push(data['WorkResource'])
-
-    console.log(WorkTask);
-    console.log(WorkResource);
-    for (let key in data) {
-      all_keys.push(key);
-      all_values.push(data[key]);
-    }
-    console.log(all_keys);
-    console.log(all_values);
-
-    let data_k = [];
-    let data_v = [];
-    let data_graph = [];
-    for (let key in all_values[0]) {
-      data_k.push(key);
-      data_v.push(all_values[0][key]);
-    }
-    console.log(data_k);
-    console.log(data_v);
-    await Scatterpolar(data_k, data_v);
-    createTableBody(data_k, data_v);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 1);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 1);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 2);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 2);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 3);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 3);
-    Gisto_hrzn(WorkTask, 'Gisto_task', 4);
-    Gisto_hrzn(WorkResource, 'Gisto_resource', 4);
-    save_content.style.display = 'none';
-    window_graphic.style.display = "flex";
-    grapf_page(1);
-    console.log("Расчеты завершены");
-});
-  }catch(error){
-    console.log(error);
+    const { svg } = await bpmnModeler.saveSVG();
+    download(svg, 'diagram.svg', 'application/xml')
+  } catch (err) {
+    console.log(err);
   }
+});
+
+// Обработка нажатия старта моделирования
+downloadLink_server.addEventListener("click", async function() {
+  modelling_rezult = await StartModelling(bpmnModeler)
+  console.log(modelling_rezult)
 })
 
 
-function Scatterpolar(data_k, data_v){
-  let data_keys = [];
-  let data_values = [];
-  data_keys = data_k.slice(0);
-  data_values = data_v.slice(0);
-  console.log(data_values);
-  let th = [];
-  th = data_keys;
-  for (let i = data_values.length - 1; i >= 0; i--) {
-    data_values[i].splice(0,1);
-  }
-
-  console.log(data_values);
-  let maxRow = data_values.map(function(row){ return Math.max.apply(Math, row); });
-  for (let i = maxRow.length - 1; i >= 0; i--) {
-    if(maxRow[i] == 0 || data_values[i].length == 0){
-      maxRow.splice(i, 1);
-      th.splice(i, 1);
-      data_values.splice(i, 1);
-    }
-  }
-  console.log(data_values);
-  console.log(th);
-  console.log(maxRow);
-
-  let size = th.length;
-  let r_values_r = [];
-  for (let i = 0; i < data_values[0].length; i++) {
-    r_values_r[i] = []; 
-    for (let j = 0; j < size; j++) {
-      r_values_r[i][j] = data_values[j][i]/maxRow[j]; 
-      if (isNaN(r_values_r[i][j])) {
-        r_values_r[i][j] = 0;
-      }
-    }
-  }
-  console.log(r_values_r);
-    //r_values_r[i-1] = Array.from(r_values_r, x => x ?? 0);
-  let data = [
-    {
-      type: "scatterpolar",
-      name: "i=1",
-      r: r_values_r[0],
-      theta: th,
-      fill: "toself",
-    },
-    {
-      type: "scatterpolar",
-      name: "i=2",
-      r: r_values_r[1],
-      theta: th,
-      fill: "toself",
-    },
-    {
-      type: "scatterpolar",
-      name: "i=3",
-      r: r_values_r[2],
-      theta: th,
-      fill: "toself",
-    },
-    {
-      type: "scatterpolar",
-      name: "i=4",
-      r: r_values_r[3],
-      theta: th,
-      fill: "toself"
-    }
-  ]
-  Plotly.newPlot('Scatterplot', data);
-}
-
-function createTableBody(data_keys, data_values) {
-  let rows = 2;
-  let table = document.getElementById('graph_table');
-  table.innerHTML = ("<tr>" + ("<td></td>").repeat(data_keys.length) + "</tr>").repeat(rows);
-  let td = document.querySelectorAll('td');
-  for(let i = 0; i < data_keys.length; i++) {
-    td[i].textContent = data_keys[i];
-  }
-  for(let i = data_keys.length; i < td.length; i++) {
-    for(let j = 0; j < data_values[i-data_keys.length].length; j++){
-      td[i].innerHTML += String(data_values[i-data_keys.length][j]) + "<br>";
-    }
-  }   
-}
-var names = ['Gisto_task1','Gisto_resource1', 'Gisto_task2','Gisto_resource2', 'Gisto_task3','Gisto_resource3', 'Gisto_task4','Gisto_resource4'];
-var n = 0;
-function Gisto_hrzn(Work_datas, name, grapf_id){
-  let work_data = Work_datas[0][grapf_id-1];
-  let datas = [];
-  for(let key in work_data){
-    if (key === 'data') {
-      datas.push(work_data[key]);
-    }
-  }
-  console.log(work_data);
-  console.log(datas);
-  let y_toappend =[];
-  let x_toappend = [];
-  let time = [];
-  let base_toappend = [];
-  datas[0].forEach((ind)=> {
-    if (name.slice(0, -1) === 'Gisto_resource') {
-    y_toappend.push(ind['Resource']);
-    y_toappend.push(ind['Resource']);
-    }
-    else {
-    y_toappend.push(ind['Task']);
-    y_toappend.push(ind['Task']);
-    }
-    x_toappend.push(ind['Start']);
-    x_toappend.push(ind['Finish']);
-  })
-  
-  console.log(y_toappend);
-  console.log(x_toappend);
-  console.log(base_toappend);
-  /*
-  for(let items in datas) {
-    for (let key in items){
-      if (key === 'Task' && name === 'Gisto_task') {
-        y_toappend.push(datas[items][key]);
-        x_toappend.push(datas[items][''])
-      }
-      else if (key === 'Task' && name === 'Gisto_resource') {
-        y_toappend.push(datas[items][key]);
-      }
-    }
-  }*/
- let data= [];
- let temp_x = [];
- let temp_y = [];
- let j = 0;
- let data_sets = {x:[], y:[], type: '', 
-  opacity: 0.5,
-  line: { color: 'red', width: 20 },
-  mode: 'lines',  name:''}
- for (let i = 0; i < y_toappend.length/2; i++) {
-  temp_x.push(x_toappend[j]);
-  temp_x.push(x_toappend[j+1]);
-  temp_y.push(y_toappend[j]);
-  temp_y.push(y_toappend[j+1]);
-  j += 2;
-  data_sets = {x: temp_x, y: temp_y, type: 'scatter', 
-    opacity: 0.5, line: {color: 'red', width: 20 }, 
-    mode: 'lines', name:j}
-  data[i] = data_sets;
-  temp_x = [];
-  temp_y = [];
- }
- let title = '';
-  if (n%2 == 0) {
-    title = 'Ресурсы';
-  }
-  else {
-    title = 'Задачи';
-  }
-  let layout = {
-    height: 500,
-    x: 1,
-    title:title,
-    yaxis: {
-      showgrid: false,
-      zeroline: true,
-      showline: true,
-      showticklabels: true
-    }
-  };
-  
-  Plotly.newPlot(names[n], data, layout);
-  n += 1;
-}
-
-function grapf_page(ind) {
-  switch (ind) {
-    case 1:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_1.style.display = 'flex';
-      graph_2.style.display = 'flex';
-      break;
-    case 2:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_3.style.display = 'flex';
-      graph_4.style.display = 'flex';
-      break;
-    case 3:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_5.style.display = 'flex';
-      graph_6.style.display = 'flex';
-      break;
-    case 4:
-      graphs.forEach((graph)=> {
-        graph.style.display = 'none';
-      })
-      graph_7.style.display = 'flex';
-      graph_8.style.display = 'flex';
-      break;
-    default:
-      graph_1.style.display = 'flex';
-      graph_2.style.display = 'flex';
-      break;
-  }
-}
 
 
-// Закрытие модального окна при клике на фон
-saveWindow.addEventListener('click', function(event) {
-  if (event.target === saveWindow) {
-    saveWindow.classList.remove('show');
-    save_content.style.display = 'block';
-    window_graphic.style.display = 'none';
-    download_text.innerText = "Файл готов к загрузке"
-  }
-  
-});
 
 // import XML
-importXMLfromFile(diagramXML); //предустановка
-function importXMLfromFile(file){
-  
-bpmnModeler.importXML(file).then(() => {
-  /*
+function importXMLfromFile(xml, bpmnModelerImport){
+  bpmnModelerImport.importXML(xml).then(() => {
+
+/*
   const moddle = bpmnModeler.get('moddle'),
         modeling = bpmnModeler.get('modeling');
   const RootElement = bpmnModeler._definitions.rootElements
 */
-  
   let businessObject,
       element;
+  const moddle = bpmnModelerImport.get('moddle')
 
-  /*Это было добавление кнопки окон видимости в панель свойств
-  let panel = document.getElementsByClassName("bio-properties-panel-scroll-container")[0] //Добавление кнопки на панель
-  let buttonDiv = document.createElement("button")
-  buttonDiv.innerHTML = 'Другое'
-  buttonDiv.id = "button-showViewWindow"
-  panel.append(buttonDiv)
-  const Button_infoTask = document.getElementById("button-showViewWindow")
-  Button_infoTask.style.display = "none"*/
-
-
-  bpmnModeler.on('element.contextmenu', HIGH_PRIORITY, (event) => { //нужно только для информации по обьекту правой кнопкой мыши( вермено )
+  bpmnModelerImport.on('element.contextmenu', HIGH_PRIORITY, (event) => { //нужно только для информации по обьекту правой кнопкой мыши( вермено )
     event.originalEvent.preventDefault();
     event.originalEvent.stopPropagation();
     ({ element } = event);
@@ -429,12 +286,14 @@ bpmnModeler.importXML(file).then(() => {
     if (!element.parent) {
       return;
     }
+    console.log(event)
     businessObject = getBusinessObject(element)
-    console.log(element)
+    ProcessingGlobalActions(businessObject, bpmnModeler, event)
+    
+
   });
 
-
-  bpmnModeler.on('element.click', HIGH_PRIORITY, (event) => { //нажатие левой кнопкой по таску
+  bpmnModelerImport.on('element.click', HIGH_PRIORITY, (event) => { //нажатие левой кнопкой по таску
     event.originalEvent.preventDefault();
     event.originalEvent.stopPropagation();
     ({ element } = event);
@@ -442,82 +301,14 @@ bpmnModeler.importXML(file).then(() => {
     if (!element.parent) {
       return;
     }
-    //businessObject = getBusinessObject(element)
-    /*
-    if(businessObject.$type == "bpmn:Task"){
-      Button_infoTask.style.display = "block"
-    }else{
-      Button_infoTask.style.display = "none"
-    }*/
     console.log(element)
   });
 
-  /* Отображене окон видимости операции
-  const TaskWindow = document.getElementById('task-window');
-  TaskWindow.addEventListener('click', function(event) {
-    if (event.target === TaskWindow) {
-      TaskWindow.classList.remove('show');
-    }
-  });
-  Button_infoTask.addEventListener("click", function(event){
-    TaskWindow.classList.add('show');
-    console.log(businessObject)
-    let arrtime = []
-    let arrbase = []
-    let yAxis = []
-    let hoverText = []
-    let lasttime = 0
-    try{
-      businessObject.extensionElements.values.forEach(props => {
-      if(props.$type == "ltsm:props" && props.hasOwnProperty("availability_time") && props.hasOwnProperty("availability_value")){
-        if(props.availability_value == 1){
-          arrbase.push(props.availability_time)
-          yAxis.push(0)
-          lasttime = props.availability_time
-        }
-        else{
-          if(arrbase.length !== 0){
-            arrtime.push(props.availability_time - lasttime)
-          }
-        }
-      }
-    })}
-    catch (error){
-      console.log(error)
-    }
-    if(arrbase.length > 0){
-
-      
-      if(arrbase.length > arrtime.length){
-        arrtime.push(5)
-      }
-      for (let index = 0; index < arrbase.length; index++) {
-        hoverText.push(String(arrbase[index]) + " to " + String(arrbase[index] + arrtime[index]))
-        console.log(String(arrbase[index]) + " to " + String(arrbase[index] + arrtime[index]))
-      }
-
-      console.log(arrtime, arrbase)
-
-      let grapfDiv = document.getElementById('task-ViewGraph')
-      grapfDiv.innerHTML = ''
-      Plotly.newPlot(grapfDiv, [{
-        type: 'bar',
-        y: yAxis,
-        x: arrtime,
-        orientation: 'h',
-        text: hoverText,
-        base: arrbase
-      },])
-    }
-    else{
-      document.getElementById('task-ViewGraph').innerHTML = ''
-    }
-  })*/
-
-
-  bpmnModeler.get('minimap').open();
+  bpmnModelerImport.get('minimap').open();
 
 }).catch((err) => {
   console.error(err);
 });
 }
+
+

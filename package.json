@@ -50,6 +50,7 @@
     "bpmn-js-properties-panel": "^5.7.0",
     "bpmn-js-token-simulation": "^0.34.2",
     "diagram-js-minimap": "^4.1.0",
+    "downloadjs": "^1.4.7",
     "jquery": "^3.5.1",
     "min-dash": "^4.1.1",
     "plotly.js-dist-min": "^2.33.0",

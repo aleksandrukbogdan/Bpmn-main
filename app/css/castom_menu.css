@@ -1,0 +1,66 @@
+/* icons*/
+body{
+    overflow: hidden;
+}
+
+.icon_header{
+    width: 25px;
+}
+
+.header_container{
+    height: 100%;
+    display: flex;
+    transition: all 0.1s ease;
+    align-items: center;
+}
+.project_Lable.select{
+    background-color: white;
+}
+#ProjectAction{
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+    height: 3vh;
+    box-shadow: 0px 8px 2px 3px #33333344;
+    border-bottom: 1px solid #424141b0;
+}
+.Action_div{
+    height: 3vh;
+    padding: 0% 5px;
+}
+.Action_div button{
+    height: 3vh;
+    padding: 0% 5px;
+}
+.Action_settings{
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    z-index: 2;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 3vh;
+    border-bottom: 1px solid #424141b0;
+    box-shadow: 0px 8px 2px 3px #33333344;
+    border-top: 1px solid #424141b0;
+}
+#LoadGif{
+    position: absolute;
+}
+#LoadGif img{
+    width: 25px;
+}
+#InfoTaskPage{
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    background-color: rgba(232, 231, 231, 0.91);
+    border: 1px solid rgb(148, 148, 148);
+    border-radius: 20px;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 400px;
+}

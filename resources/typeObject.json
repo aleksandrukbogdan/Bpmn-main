@@ -1,0 +1,36 @@
+{
+    "name": "typeObject",
+    "uri": "http://litsam-typeObject.ru",
+    "prefix": "to",
+    "types": [
+      {
+        "name": "tObject",
+        "superClass": [ "Element" ],
+        "properties": [
+          {
+            "name": "type-name",
+            "isAttr": true,
+            "type": "String"
+          },
+          {
+            "name": "Availability",
+            "isMany": true,
+            "type": "Availability_resource"
+          }
+        ]
+      },
+      {
+        "name": "Availability_resource",
+        "properties": [
+          {
+            "name": "type-name",
+            "isAttr": true,
+            "type": "String"
+          }
+        ]
+      }
+    ],
+    "emumerations": [],
+    "associations": []
+  }
+  

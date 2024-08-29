@@ -1,4 +1,3 @@
-
 import Plotly from 'plotly.js-dist-min'
 
 var WorkTask = [];
@@ -36,6 +35,7 @@ async function CreateWindowResult(modelling_rezult){
   await Scatterpolar(data_k, data_v);
   await Gisto_hrzn(WorkTask, 'Gisto_task', 1);
   await Gisto_hrzn(WorkResource, 'Gisto_resource', 1);
+  await bar_chart(WorkResource);
 }
 
 
@@ -116,13 +116,16 @@ function Scatterpolar(data_k, data_v){
       x_toappend.push(ind['Start']);
       x_toappend.push(ind['Finish']);
     })
-    
+   
    let data = [];
    let temp_x = [];
    let temp_y = [];
-  
+   let temp_color = {};
    let temp_legend = [];
    let j = 0;
+   for (let i = 0; i < legeng_toappend.length; i++) {
+    temp_color[legeng_toappend[i]] = color_toappend[i];
+   }
    let data_sets = {x:[], y:[], type: '', 
     opacity: 0.5,
     line: { color: 'red', width: 40 },
@@ -134,11 +137,18 @@ function Scatterpolar(data_k, data_v){
     temp_y.push(y_toappend[j+1]);
     if (temp_legend.includes(legeng_toappend[i])) {
       temp_legend.push(' ');
+      Object.entries(temp_color).forEach(([key, value]) => {
+        if (key == legeng_toappend[i]){
+          color_toappend[i] = value;
+          console.log("было");
+        }
+      });
     }
     else {
       temp_legend.push(legeng_toappend[i])
     }
-    console.log(temp_legend);
+
+    console.log(temp_color);
     j += 2;
   
     data_sets = {x: temp_x, y: temp_y, type: 'scatter', 
@@ -226,6 +236,120 @@ function Scatterpolar(data_k, data_v){
     
     Plotly.newPlot(name, data, layout);
     n += 1;
+  }
+
+  function bar_chart(Work_datas) {
+    let work_data = Work_datas[0][0];
+    let datas = work_data['data'];
+    let color_toappend = work_data['colors'];
+    let legeng_toappend = [];
+    let y_toappend =[];
+    let x_toappend = [];
+    datas.forEach((ind)=> {
+      y_toappend.push(ind['Task']);
+      //legeng_toappend.push(ind['Resource']);
+      x_toappend.push(ind['Start']);
+      x_toappend.push(ind['Finish']);
+    })
+    console.log(y_toappend);
+    console.log(x_toappend);
+    let work_time = [];
+    let work_res = [];
+    let res_time = {};
+    let stop_time = {};
+    let stop_res =[];
+    let time1 = 0;
+    let time2 = 0;
+    for (let i = 0; i < y_toappend.length; i++) {
+      res_time[y_toappend[i]] = 0;
+      stop_time[y_toappend[i]] = 0;
+    }
+    let c = 0;
+    for (let i = 0; i < x_toappend.length; i += 2) {
+      time1 = new Date(x_toappend[i]);
+      time2 = new Date(x_toappend[i+1]);
+      res_time[y_toappend[c]] += Number((time2 - time1)/1000);
+      c += 1;
+    }
+    for (let i = 0; i < y_toappend.length; i++) {
+      for (let j = i+1; j < y_toappend.length; j++) {
+        if (y_toappend[i]==y_toappend[j]) {
+          time1 = new Date(x_toappend[i*2+1]);
+          time2 = new Date(x_toappend[j*2]);
+          console.log((time2));
+          console.log(time1);
+          console.log((time2 - time1)/1000);
+          stop_time[y_toappend[i]] += Number((time2 - time1)/1000);
+          console.log(stop_time);
+          break;
+        }
+      }
+      
+    }
+    Object.keys(res_time).forEach(key => res_time[key] === undefined ? delete res_time[key] : {});
+    Object.entries(res_time).forEach(([key, value]) => {
+      work_res.push(key);
+      work_time.push(value);
+    })
+    Object.entries(stop_time).forEach(([key, value]) => {
+      stop_res.push(value);
+    })
+
+    console.log(stop_time);
+    var data1 = [
+      {
+        x: work_res,
+        y: work_time,
+        type: 'bar',
+        name: 'Время работы'
+      }
+    ];
+    
+    let trace_stop = {
+      x: work_res,
+      y: stop_res,
+      type: 'bar',
+      name: 'Время отдыха'
+    }
+    var data2 = [data1[0], trace_stop];
+    var layout1 = {
+      title: 'Общее время работы КА',
+      font:{
+        family: 'Times New Roman',
+        size: 12,
+        color: 'rgb(37,37,37)'
+      },
+      showlegend: false,
+      yaxis: {
+        zeroline: false,
+        gridwidth: 2,
+        tickfont: {
+          family: 'Times New Roman',
+          size: 12,
+          color: 'rgb(82, 82, 82)'
+        }
+      },
+    };
+    var layout2 = {
+      title: 'Общее время работы и остановки КА',
+      font:{
+        family: 'Times New Roman',
+        size: 12,
+        color: 'rgb(37,37,37)'
+      },
+      yaxis: {
+        zeroline: false,
+        gridwidth: 2,
+        tickfont: {
+          family: 'Times New Roman',
+          size: 12,
+          color: 'rgb(82, 82, 82)'
+        }
+      },
+    };
+    
+    Plotly.newPlot('bar_chart1', data1, layout1);
+    Plotly.newPlot('bar_chart2', data2, layout2);
   }
   
   var button_pages = document.querySelectorAll('button.id_text');

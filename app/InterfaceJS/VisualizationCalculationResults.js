@@ -106,6 +106,7 @@ function Scatterpolar(data_k, data_v){
     let work_data = Work_datas[0][grapf_id-1];
     let datas = work_data['data'];
     let color_toappend = work_data['colors'];
+    console.log(color_toappend);
     let legeng_toappend = [];
     let y_toappend =[];
     let x_toappend = [];
@@ -115,6 +116,7 @@ function Scatterpolar(data_k, data_v){
       legeng_toappend.push(ind['Resource']);
       x_toappend.push(ind['Start']);
       x_toappend.push(ind['Finish']);
+      color_toappend.push(ind)
     })
    
    let data = [];
@@ -122,38 +124,41 @@ function Scatterpolar(data_k, data_v){
    let temp_y = [];
    let temp_color = {};
    let temp_legend = [];
+   let t = [];
+   let c = 0;
    let j = 0;
    for (let i = 0; i < legeng_toappend.length; i++) {
-    temp_color[legeng_toappend[i]] = color_toappend[i];
+    if (!t.includes(legeng_toappend[i])){
+      temp_color[legeng_toappend[i]] = color_toappend[c];
+      t.push(legeng_toappend[i])
+      c++;
+    }
    }
+   console.log(temp_color);
    let data_sets = {x:[], y:[], type: '', 
     opacity: 0.5,
     line: { color: 'red', width: 40 },
-    mode: 'lines',  name:'', legendgroup: ''}
+    mode: 'lines',showlegend: true,  name:'', legendgroup: ''}
    for (let i = 0; i < y_toappend.length/2; i++) {
+    let showlegend = true;
     temp_x.push(x_toappend[j]);
     temp_x.push(x_toappend[j+1]);
     temp_y.push(y_toappend[j]);
     temp_y.push(y_toappend[j+1]);
     if (temp_legend.includes(legeng_toappend[i])) {
-      temp_legend.push(' ');
+      showlegend = false;
       Object.entries(temp_color).forEach(([key, value]) => {
         if (key == legeng_toappend[i]){
           color_toappend[i] = value;
-          console.log("было");
         }
       });
     }
-    else {
-      temp_legend.push(legeng_toappend[i])
-    }
-
-    console.log(temp_color);
+    temp_legend.push(legeng_toappend[i])
     j += 2;
   
     data_sets = {x: temp_x, y: temp_y, type: 'scatter', 
       opacity: 0.5, line: {color: color_toappend[i], width: 30 }, 
-      mode: 'lines', name: temp_legend[i], legendgroup: legeng_toappend[i]}
+      mode: 'lines', showlegend: showlegend, name: temp_legend[i], legendgroup: legeng_toappend[i]}
     data[i] = data_sets;
     temp_x = [];
     temp_y = [];
@@ -241,15 +246,11 @@ function Scatterpolar(data_k, data_v){
   function bar_chart(Work_datas) {
     let work_data = Work_datas[0][0];
     let datas = work_data['data'];
-    let color_toappend = work_data['colors'];
-    let legeng_toappend = [];
     let y_toappend =[];
     let x_toappend = [];
     datas.forEach((ind)=> {
       y_toappend.push(ind['Task']);
-      //legeng_toappend.push(ind['Resource']);
-      x_toappend.push(ind['Start']);
-      x_toappend.push(ind['Finish']);
+      x_toappend.push(ind['Start'], ind['Finish']);
     })
     console.log(y_toappend);
     console.log(x_toappend);
@@ -271,32 +272,52 @@ function Scatterpolar(data_k, data_v){
       res_time[y_toappend[c]] += Number((time2 - time1)/1000);
       c += 1;
     }
-    for (let i = 0; i < y_toappend.length; i++) {
-      for (let j = i+1; j < y_toappend.length; j++) {
-        if (y_toappend[i]==y_toappend[j]) {
-          time1 = new Date(x_toappend[i*2+1]);
-          time2 = new Date(x_toappend[j*2]);
-          console.log((time2));
-          console.log(time1);
-          console.log((time2 - time1)/1000);
-          stop_time[y_toappend[i]] += Number((time2 - time1)/1000);
-          console.log(stop_time);
-          break;
-        }
-      }
-      
-    }
     Object.keys(res_time).forEach(key => res_time[key] === undefined ? delete res_time[key] : {});
     Object.entries(res_time).forEach(([key, value]) => {
       work_res.push(key);
       work_time.push(value);
     })
+
+    let last_time = new Date('0001-01-01 00:00:00');
+    let last_time_dict = {};
+    for (let i = 0; i < work_res.length; i++) {
+      y_toappend.unshift(work_res[i]);
+      x_toappend.unshift(x_toappend[0], x_toappend[0]);
+      last_time_dict[work_res[i]] = new Date('0001-01-01 00:00:00')
+      //y_toappend.push(work_res[i]);
+      //x_toappend.push(x_toappend.at(-1));
+    }
+    console.log(y_toappend);
+    console.log(x_toappend);
+    let tmp = [];
+    for (let i = 0; i < y_toappend.length; i++) {
+      for (let j = i+1; j < y_toappend.length; j++) {
+        if (y_toappend[i]==y_toappend[j]) {
+          time1 = new Date(x_toappend[i*2+1]);
+          time2 = new Date(x_toappend[j*2]);
+          stop_time[y_toappend[i]] += Number((time2 - time1)/1000);
+          last_time_dict[y_toappend[i]] = x_toappend[j*2];
+          tmp.push(time1, time2, last_time)
+          last_time = new Date(Math.max(...tmp));
+          break;
+        }
+      }
+    }/*
+    console.log(last_time_dict);
+    last_time = last_time.toISOString().replace('T',' ').replace('.000Z', '');
+    last_time = new Date(last_time);
+    console.log(last_time);
+    Object.entries(last_time_dict).forEach(([key, value]) => {
+      last_time_dict[key] = Number((last_time - last_time_dict[key]) / 1000);
+    })*/
+    console.log(last_time_dict);
     Object.entries(stop_time).forEach(([key, value]) => {
-      stop_res.push(value);
+      stop_res.push(value);// + last_time_dict[key]);
     })
 
     console.log(stop_time);
-    var data1 = [
+    console.log(stop_res);
+    let data1 = [
       {
         x: work_res,
         y: work_time,
@@ -311,8 +332,8 @@ function Scatterpolar(data_k, data_v){
       type: 'bar',
       name: 'Время отдыха'
     }
-    var data2 = [data1[0], trace_stop];
-    var layout1 = {
+    let data2 = [data1[0], trace_stop];
+    let layout1 = {
       title: 'Общее время работы КА',
       font:{
         family: 'Times New Roman',
@@ -330,7 +351,7 @@ function Scatterpolar(data_k, data_v){
         }
       },
     };
-    var layout2 = {
+    let layout2 = {
       title: 'Общее время работы и остановки КА',
       font:{
         family: 'Times New Roman',
